@@ -5,17 +5,6 @@ Created on Sat Jun 18 14:07:19 2022
 
 @author: bizzarohd
 """
-"""
-NOTES: my spoherical coordinate system is set up correctly. with the red arrow being the axis of rotation
-
-but the magnetic vector field does not always follow the axis of rotation for certain gammas and alphas
-
-right hand rule only works for one axis
-
-wanything in the y direction seems to be working well
-
-x -- right hand rule is flipped....    think i got it-----> the entire Iy expression needs to be negative.
-"""
 import datetime as dt
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -54,7 +43,7 @@ class Helmholtz_Simulator:
         
         
         self.ax = self.fig.add_subplot(141, projection='3d')  #3d field sim
-        self.ax.view_init(elev=30, azim=45)
+        self.ax.view_init(elev=90, azim=45)
        
         self.ax1 = self.fig.add_subplot(142, projection='3d')#self.fig.add_subplot(132)  #2d sine sim
         self.ax1.view_init(elev=30, azim=45)
@@ -116,12 +105,15 @@ class Helmholtz_Simulator:
     # This function is called periodically from FuncAnimation
 
     def animate(self,i):
-        #self.alpha = i *np.pi/180
+        #self.alpha = i *np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
         tp = time.time() - self.start
-        Ix = -self.A * ( (np.cos(self.gamma) * np.cos(self.alpha) * np.cos(self.omega*tp)) + (np.sin(self.alpha) * np.sin(self.omega*tp)))
+        Ix = self.A * ( (np.cos(self.gamma) * np.cos(self.alpha) * np.cos(self.omega*tp)) + (np.sin(self.alpha) * np.sin(self.omega*tp)))
         Iy = -self.A * ((np.cos(self.gamma) * np.sin(self.alpha) * np.cos(self.omega*tp)) + (np.cos(self.alpha) * np.sin(self.omega*tp)))
         Iz = self.A * np.sin(self.gamma) * np.cos(self.omega*tp)
-
+        
+        #Ix = (np.cos(self.alpha + np.pi/2) * np.sin(self.omega*tp)) + (np.cos(self.alpha+ np.pi/2) * np.cos(self.gamma)  * np.cos(self.omega*tp)) 
+        #Iy =  (np.sin(self.alpha+ np.pi/2) * np.sin(self.omega*tp)) + (np.sin(self.alpha+ np.pi/2) * np.cos(self.gamma) *  np.cos(self.omega*tp)) 
+        #Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
         
         #feed into helmhotz simulator
         BTotal_X = self.zb_field(self.x, Ix)
@@ -142,7 +134,6 @@ class Helmholtz_Simulator:
 
 
         # Draw Bx,By,Bz field
-
         self.ax.clear()
         self.show_axis_rotation(self.ax, 50)
         speed = np.sqrt((BTotal_X)**2+(BTotal_Y)**2+(BTotal_Z)**2).flatten()
@@ -183,15 +174,17 @@ class Helmholtz_Simulator:
 
     def run(self):
         # Set up plot to call animate() function periodically
-        anim = animation.FuncAnimation(self.fig, self.animate, interval=100, blit = False)
+        anim = animation.FuncAnimation(self.fig, self.animate,frames = range(360), interval=10, blit = False)
         self.ax3.imshow(self.diagram)
         plt.show()
 
 
 if __name__ == "__main__":
-    alpha = 0
-    gamma = 45
+    alpha = 180
+    gamma = 0
     freq = .5
     memory = 15  # for sinuoisd, so its only plot the last 15 points in the list
+
+
     sim = Helmholtz_Simulator(alpha, gamma, freq, memory)
     sim.run()
