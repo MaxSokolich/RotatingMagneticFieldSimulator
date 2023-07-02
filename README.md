@@ -1,8 +1,13 @@
 # RotatingMagneticFieldSimulator
+the simulator takes generates the current inputs Ix, Iy,Iz to the 3 axis helmholtz coils, then outputs the correct Bfield using the equations from this website: https://phys.libretexts.org/Bookshelves/Electricity_and_Magnetism/Electricity_and_Magnetism_(Tatum)/06%3A_The_Magnetic_Effect_of_an_Electric_Current/6.07%3A_Helmholtz_Coils
+
+I have functions to genreate the magnetic field based on each of our coils and there attributes (number of turns, radius, distance etc) but for now I am just treating them all the same (using the Bz coil for everything)
+
 
 NOTES: my spoherical coordinate system IS set up correctly. with the red arrow being the axis of rotation
 
 disregard the diagram for now, the equations are all messed up in the first place.
+
 
 
 7/6 2:00pm
