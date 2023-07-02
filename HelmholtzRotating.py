@@ -105,7 +105,7 @@ class Helmholtz_Simulator:
     # This function is called periodically from FuncAnimation
 
     def animate(self,i):
-        #self.alpha = i *np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
+        self.alpha = i *np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
         tp = time.time() - self.start
         Ix = self.A * ( (np.cos(self.gamma) * np.cos(self.alpha) * np.cos(self.omega*tp)) + (np.sin(self.alpha) * np.sin(self.omega*tp)))
         Iy = -self.A * ((np.cos(self.gamma) * np.sin(self.alpha) * np.cos(self.omega*tp)) + (np.cos(self.alpha) * np.sin(self.omega*tp)))
@@ -114,7 +114,8 @@ class Helmholtz_Simulator:
         #Ix = (np.cos(self.alpha + np.pi/2) * np.sin(self.omega*tp)) + (np.cos(self.alpha+ np.pi/2) * np.cos(self.gamma)  * np.cos(self.omega*tp)) 
         #Iy =  (np.sin(self.alpha+ np.pi/2) * np.sin(self.omega*tp)) + (np.sin(self.alpha+ np.pi/2) * np.cos(self.gamma) *  np.cos(self.omega*tp)) 
         #Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
-        
+    
+       
         #feed into helmhotz simulator
         BTotal_X = self.zb_field(self.x, Ix)
         BTotal_Y = self.zb_field(self.y, Iy)
@@ -160,14 +161,14 @@ class Helmholtz_Simulator:
         self.ax1.set_xlabel('Ix (A)') 
         self.ax1.set_ylabel('Iy (A)') 
         self.ax1.set_zlabel('Iz (A)') 
-        self.ax2.set_title("makes no sense{}".format(i)) 
+        self.ax1.set_title("if line 108 uncommented\nalpha = {}".format(i)) 
 
      
         
     def show_axis_rotation(self, ax, length):
         #plot rotation axis
         x = 1 * np.sin(self.gamma) * np.cos(self.alpha)
-        y = 1 * np.sin(self.gamma) * np.sin(self.alpha)  #need negative to match b field equations above?
+        y = 1 * np.sin(self.gamma) * np.sin(self.alpha)  
         z = 1 * np.cos(self.gamma)
         ax.quiver(0,0,0,x,y,z,color='red',length=length)
 
@@ -181,7 +182,7 @@ class Helmholtz_Simulator:
 
 if __name__ == "__main__":
     alpha = 180
-    gamma = 0
+    gamma = 90
     freq = .5
     memory = 15  # for sinuoisd, so its only plot the last 15 points in the list
 
