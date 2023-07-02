@@ -10,6 +10,11 @@ NOTES: my spoherical coordinate system is set up correctly. with the red arrow b
 
 but the magnetic vector field does not always follow the axis of rotation for certain gammas and alphas
 
+right hand rule only works for one axis
+
+wanything in the y direction seems to be working well
+
+x -- right hand rule is flipped....    think i got it-----> the entire Iy expression needs to be negative.
 """
 import datetime as dt
 import matplotlib.pyplot as plt
@@ -20,7 +25,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D 
 import matplotlib.colors as colors
-plt.style.use('dark_background')
+#plt.style.use('Solarize Light2')
 
 class Helmholtz_Simulator:
     def __init__(self, alpha, gamma, freq, memory):
@@ -111,11 +116,13 @@ class Helmholtz_Simulator:
     # This function is called periodically from FuncAnimation
 
     def animate(self,i):
+        #self.alpha = i *np.pi/180
         tp = time.time() - self.start
-        Ix = self.A * ( (np.cos(self.gamma) * np.cos(self.alpha) * np.cos(self.omega*tp)) + (np.sin(self.alpha) * np.sin(self.omega*tp)))
-        Iy = self.A * (-(np.cos(self.gamma) * np.sin(self.alpha) * np.cos(self.omega*tp)) + (np.cos(self.alpha) * np.sin(self.omega*tp)))
+        Ix = -self.A * ( (np.cos(self.gamma) * np.cos(self.alpha) * np.cos(self.omega*tp)) + (np.sin(self.alpha) * np.sin(self.omega*tp)))
+        Iy = -self.A * ((np.cos(self.gamma) * np.sin(self.alpha) * np.cos(self.omega*tp)) + (np.cos(self.alpha) * np.sin(self.omega*tp)))
         Iz = self.A * np.sin(self.gamma) * np.cos(self.omega*tp)
 
+        
         #feed into helmhotz simulator
         BTotal_X = self.zb_field(self.x, Ix)
         BTotal_Y = self.zb_field(self.y, Iy)
@@ -139,7 +146,8 @@ class Helmholtz_Simulator:
         self.ax.clear()
         self.show_axis_rotation(self.ax, 50)
         speed = np.sqrt((BTotal_X)**2+(BTotal_Y)**2+(BTotal_Z)**2).flatten()
-        self.ax.quiver(self.x,self.y,self.z,BTotal_X,BTotal_Y,BTotal_Z, color='black',length=1, norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))#,density = 2)#norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))
+        self.ax.quiver(self.x,self.y,self.z,BTotal_X,BTotal_Y,BTotal_Z, color='black',length=1) #norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))#,density = 2)#norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))
+        self.ax.scatter(self.x,self.y,self.z, s = 1, c= "b")
         self.ax.set_xlabel('x (mm)') 
         self.ax.set_ylabel('y (mm)') 
         self.ax.set_zlabel('z (mm)') 
@@ -161,6 +169,7 @@ class Helmholtz_Simulator:
         self.ax1.set_xlabel('Ix (A)') 
         self.ax1.set_ylabel('Iy (A)') 
         self.ax1.set_zlabel('Iz (A)') 
+        self.ax2.set_title("makes no sense{}".format(i)) 
 
      
         
@@ -174,14 +183,14 @@ class Helmholtz_Simulator:
 
     def run(self):
         # Set up plot to call animate() function periodically
-        anim = animation.FuncAnimation(self.fig, self.animate, interval=1, blit = False)
+        anim = animation.FuncAnimation(self.fig, self.animate, interval=100, blit = False)
         self.ax3.imshow(self.diagram)
         plt.show()
 
 
 if __name__ == "__main__":
-    alpha = 90
-    gamma = 20
+    alpha = 0
+    gamma = 45
     freq = .5
     memory = 15  # for sinuoisd, so its only plot the last 15 points in the list
     sim = Helmholtz_Simulator(alpha, gamma, freq, memory)
