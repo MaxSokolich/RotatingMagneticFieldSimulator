@@ -43,7 +43,7 @@ class Helmholtz_Simulator:
         
         
         self.ax = self.fig.add_subplot(141, projection='3d')  #3d field sim
-        self.ax.view_init(elev=90, azim=45)
+        self.ax.view_init(elev=30, azim=45)
        
         self.ax1 = self.fig.add_subplot(142, projection='3d')#self.fig.add_subplot(132)  #2d sine sim
         self.ax1.view_init(elev=30, azim=45)
