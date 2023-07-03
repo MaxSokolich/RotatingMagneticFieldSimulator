@@ -55,24 +55,24 @@ class Helmholtz_Simulator:
 
         #params for field
         self.milli = 10**(-6)
-        self.mu = 4*np.pi * (10**(-7)) / self.milli
+        self.mu = 4*np.pi * (10**(-7)) 
     
 
 
         #define 3D grid
-        grid_res = 8
-        min_x,min_y,min_z = -25, -25,-25 #mm
-        max_x, max_y, max_z = 25, 25,25
+        grid_res = 8 *self.milli
+        min_x,min_y,min_z = -25*self.milli, -25*self.milli,-25*self.milli #mm
+        max_x, max_y, max_z = 25*self.milli, 25*self.milli,25*self.milli
 
         X = np.arange(min_x, max_x, grid_res)
         Y = np.arange(min_y, max_y, grid_res)
-        Z = np.arange(min_y, max_y, grid_res)
+        Z = np.arange(min_z, max_z, grid_res)
         self.x,self.y,self.z = np.meshgrid(X, Y, Z)
 
     #helmholtz X field equation
     def xb_field(self,x, Ix):
-        a = 54 #radius
-        c = (84/2) #distance between /2
+        a = 54*self.milli #radius
+        c = (84/2)*self.milli #distance between /2
         N = 260 #number of turns
         #the field at x away from the coil
         term1 = 1/ (a**2 + (c-x)**2)**(3/2)
@@ -82,8 +82,8 @@ class Helmholtz_Simulator:
 
     #helmholtz Y field equation
     def yb_field(self,y, Iy):
-        a = 35 #radius
-        c = (66/2) #distance between /2
+        a = 35*self.milli #radius
+        c = (66/2)*self.milli #distance between /2
         N = 368 #number of turns
         #the field at x away from the coil
         term1 = 1/ ((a**2 + (c-y)**2)**(3/2))
@@ -93,8 +93,8 @@ class Helmholtz_Simulator:
 
     #helmholtz Z field equation
     def zb_field(self, z, Iz):
-        a = 26 #radius
-        c = (26/2) #distance between /2
+        a = 26*self.milli #radius
+        c = (26/2)*self.milli #distance between /2
         N = 368 #number of turns
         #the field at x away from the coil
         term1 = 1/ (a**2 + (c-z)**2)**(3/2)
@@ -106,21 +106,37 @@ class Helmholtz_Simulator:
 
     def animate(self,i):
         self.alpha = i *np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
+        #self.ax.view_init(elev=90, azim=45)
+        #self.ax1.view_init(elev=90, azim=45)
+
+
         tp = time.time() - self.start
-        Ix = self.A * ( (np.cos(self.gamma) * np.cos(self.alpha) * np.cos(self.omega*tp)) + (np.sin(self.alpha) * np.sin(self.omega*tp)))
-        Iy = -self.A * ((np.cos(self.gamma) * np.sin(self.alpha) * np.cos(self.omega*tp)) + (np.cos(self.alpha) * np.sin(self.omega*tp)))
-        Iz = self.A * np.sin(self.gamma) * np.cos(self.omega*tp)
+        #Ix = self.A * ( (np.cos(self.gamma) * np.cos(self.alpha) * np.cos(self.omega*tp)) + (np.sin(self.alpha) * np.sin(self.omega*tp)))
+        #Iy = -self.A * ((np.cos(self.gamma) * np.sin(self.alpha) * np.cos(self.omega*tp)) + (np.cos(self.alpha) * np.sin(self.omega*tp)))
+        #Iz = self.A * np.sin(self.gamma) * np.cos(self.omega*tp)
         
-        #Ix = (np.cos(self.alpha + np.pi/2) * np.sin(self.omega*tp)) + (np.cos(self.alpha+ np.pi/2) * np.cos(self.gamma)  * np.cos(self.omega*tp)) 
-        #Iy =  (np.sin(self.alpha+ np.pi/2) * np.sin(self.omega*tp)) + (np.sin(self.alpha+ np.pi/2) * np.cos(self.gamma) *  np.cos(self.omega*tp)) 
+        #Ix = (np.sin(-self.alpha) * np.sin(self.omega*tp)) + (-np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp)) 
+        #Iy =  (np.cos(-self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp)) 
         #Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
-    
+
+
+        #the good ones
+        Ix = ((np.cos(self.alpha + np.pi/2) * np.sin(self.omega*tp)) + (np.cos(self.alpha+ np.pi) * np.cos(self.gamma)  * np.cos(self.omega*tp)))
+        Iy =  ((np.sin(self.alpha+ np.pi/2) * np.sin(self.omega*tp)) + (np.sin(self.alpha+ np.pi) * np.cos(self.gamma) *  np.cos(self.omega*tp))) 
+        Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
+        
+        #achiral swimming equations from MicrioBioRobotics textbook pg 125
+        #Ix = - np.cos(self.alpha) + np.sin(self.alpha) * np.cos(self.omega*tp)
+        #Iy =  np.sin(self.alpha) + np.cos(self.alpha) * np.cos(self.omega*tp)
+        #Iz =  np.sin(self.omega*tp) 
        
         #feed into helmhotz simulator
-        BTotal_X = self.zb_field(self.x, Ix)
-        BTotal_Y = self.zb_field(self.y, Iy)
-        BTotal_Z = self.zb_field(self.z, Iz)
-
+        
+        BX = self.zb_field(self.x, Ix)  
+        BY = self.zb_field(self.y, Iy)
+        BZ = self.zb_field(self.z, Iz)
+        
+        
         #update Bfield lists for sinusoids
         self.t_list.append(tp)
         self.Ix_List.append(Ix)
@@ -133,12 +149,13 @@ class Helmholtz_Simulator:
         Iy_List = self.Iy_List[-self.memory:]
         Iz_List = self.Iz_List[-self.memory:]
 
-
+        
         # Draw Bx,By,Bz field
         self.ax.clear()
-        self.show_axis_rotation(self.ax, 50)
-        speed = np.sqrt((BTotal_X)**2+(BTotal_Y)**2+(BTotal_Z)**2).flatten()
-        self.ax.quiver(self.x,self.y,self.z,BTotal_X,BTotal_Y,BTotal_Z, color='black',length=1) #norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))#,density = 2)#norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))
+       
+        self.show_axis_rotation(self.ax, 0.0001)
+        speed = np.sqrt((BX)**2+(BY)**2+(BZ)**2).flatten()
+        self.ax.quiver(self.x,self.y,self.z,BX,BY,BZ, color='black',length=0.000001) #norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))#,density = 2)#norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))
         self.ax.scatter(self.x,self.y,self.z, s = 1, c= "b")
         self.ax.set_xlabel('x (mm)') 
         self.ax.set_ylabel('y (mm)') 
@@ -181,8 +198,8 @@ class Helmholtz_Simulator:
 
 
 if __name__ == "__main__":
-    alpha = 180
-    gamma = 90
+    alpha = 90
+    gamma = 45
     freq = .5
     memory = 15  # for sinuoisd, so its only plot the last 15 points in the list
 
