@@ -118,6 +118,10 @@ class Helmholtz_Simulator:
         Iy =  (np.cos(self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp)) 
         Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
 
+        #right hand simplified good ones actully bad
+        #Ix = (np.sin(self.alpha) * np.sin(self.omega*tp)) + (np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp)) 
+        #Iy =  (-np.cos(self.alpha) * np.sin(self.omega*tp)) + (np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp)) 
+        #Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
 
         #the good ones
         #Ix = ((np.cos(self.alpha + np.pi/2) * np.sin(self.omega*tp)) + (np.cos(self.alpha+ np.pi) * np.cos(self.gamma)  * np.cos(self.omega*tp)))
