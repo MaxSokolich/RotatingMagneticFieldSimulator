@@ -56,8 +56,6 @@ class Helmholtz_Simulator:
         #params for field
         self.milli = 10**(-6)
         self.mu = 4*np.pi * (10**(-7)) 
-    
-
 
         #define 3D grid
         grid_res = 8 *self.milli
@@ -105,7 +103,7 @@ class Helmholtz_Simulator:
     # This function is called periodically from FuncAnimation
 
     def animate(self,i):
-        self.alpha = i *np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
+        #self.alpha = i * np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
         #self.ax.view_init(elev=90, azim=45)
         #self.ax1.view_init(elev=90, azim=45)
 
@@ -115,15 +113,17 @@ class Helmholtz_Simulator:
         #Iy = -self.A * ((np.cos(self.gamma) * np.sin(self.alpha) * np.cos(self.omega*tp)) + (np.cos(self.alpha) * np.sin(self.omega*tp)))
         #Iz = self.A * np.sin(self.gamma) * np.cos(self.omega*tp)
         
-        #Ix = (np.sin(-self.alpha) * np.sin(self.omega*tp)) + (-np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp)) 
-        #Iy =  (np.cos(-self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp)) 
-        #Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
+        #simplified good ones
+        Ix = (-np.sin(self.alpha) * np.sin(self.omega*tp)) + (-np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp)) 
+        Iy =  (np.cos(self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp)) 
+        Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
 
 
         #the good ones
-        Ix = ((np.cos(self.alpha + np.pi/2) * np.sin(self.omega*tp)) + (np.cos(self.alpha+ np.pi) * np.cos(self.gamma)  * np.cos(self.omega*tp)))
-        Iy =  ((np.sin(self.alpha+ np.pi/2) * np.sin(self.omega*tp)) + (np.sin(self.alpha+ np.pi) * np.cos(self.gamma) *  np.cos(self.omega*tp))) 
-        Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
+        #Ix = ((np.cos(self.alpha + np.pi/2) * np.sin(self.omega*tp)) + (np.cos(self.alpha+ np.pi) * np.cos(self.gamma)  * np.cos(self.omega*tp)))
+        #Iy =  ((np.sin(self.alpha+ np.pi/2) * np.sin(self.omega*tp)) + (np.sin(self.alpha+ np.pi) * np.cos(self.gamma) *  np.cos(self.omega*tp))) 
+        #Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
+        print(np.linalg.norm([Ix,Iy,Iz]))
         
         #achiral swimming equations from MicrioBioRobotics textbook pg 125
         #Ix = - np.cos(self.alpha) + np.sin(self.alpha) * np.cos(self.omega*tp)
@@ -197,10 +197,16 @@ class Helmholtz_Simulator:
         plt.show()
 
 
+
+
+
 if __name__ == "__main__":
-    alpha = 90
-    gamma = 45
+    
+    alpha = 0
+    gamma = 90
     freq = .5
+    
+    
     memory = 15  # for sinuoisd, so its only plot the last 15 points in the list
 
 
