@@ -17,11 +17,11 @@ import matplotlib.colors as colors
 #plt.style.use('Solarize Light2')
 
 class Helmholtz_Simulator:
-    def __init__(self, alpha, gamma, freq, memory):
+    def __init__(self, alpha, gamma, psi, freq, memory, Bx, By, Bz):
         self.start = time.time()
 
 
-        self.diagram = plt.imread("Diagram.png")
+        self.diagram = plt.imread("src/Diagram.png")
         #define lists to store sineusoid in
         self.t_list = []
         self.Ix_List = []
@@ -30,10 +30,16 @@ class Helmholtz_Simulator:
         self.memory = memory
 
         #rolling parameters
+        self.Bx = Bx
+        self.By = By
+        self.Bz = Bz
+
         self.A = 1 #amplitude of rotating magetnic field
         self.alpha = alpha* (np.pi/180)   # yaw angle converted to radians
         self.gamma = gamma * (np.pi/180) # pitch angle converted to radians
+        self.psi = psi * (np.pi/180)
         self.omega = 2*np.pi* float(freq)  #angular velocity of rotating field defined from input from Rotating Frequency Entry
+        
         self.period = (2*np.pi)/self.omega  #time it takes for one cycle
 
 
@@ -103,38 +109,46 @@ class Helmholtz_Simulator:
     # This function is called periodically from FuncAnimation
 
     def animate(self,i):
+        
         #self.alpha = i * np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
+        #self.psi = (i %90) *np.pi/180
         #self.ax.view_init(elev=90, azim=45)
         #self.ax1.view_init(elev=90, azim=45)
 
-
         tp = time.time() - self.start
-        #Ix = self.A * ( (np.cos(self.gamma) * np.cos(self.alpha) * np.cos(self.omega*tp)) + (np.sin(self.alpha) * np.sin(self.omega*tp)))
-        #Iy = -self.A * ((np.cos(self.gamma) * np.sin(self.alpha) * np.cos(self.omega*tp)) + (np.cos(self.alpha) * np.sin(self.omega*tp)))
-        #Iz = self.A * np.sin(self.gamma) * np.cos(self.omega*tp)
-        
-        #simplified good ones
-        Ix = (-np.sin(self.alpha) * np.sin(self.omega*tp)) + (-np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp)) 
-        Iy =  (np.cos(self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp)) 
-        Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
+        Brollx =  ((-np.sin(self.alpha) * np.sin(self.omega*tp)) + (-np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp))) 
+        Brolly =  ((np.cos(self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp))) 
+        Brollz =  np.sin(self.gamma) * np.cos(self.omega*tp)
 
-        #right hand simplified good ones actully bad
-        #Ix = (np.sin(self.alpha) * np.sin(self.omega*tp)) + (np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp)) 
-        #Iy =  (-np.cos(self.alpha) * np.sin(self.omega*tp)) + (np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp)) 
-        #Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
+        if self.psi < np.pi/2:
+            #if self.alpha % (np.pi/2) == 0:
+            #    self.alpha = self.alpha + 0.000001#for some strange reason the eqns give wrong answers when alpha is pi/2
+            #if self.gamma == 0 or self.gamma % (np.pi/2) == 0:
+            #    self.gamma = self.gamma + 0.000001
+            c = 1/np.tan(self.psi)
+            BxPer = c* np.cos(self.alpha) * np.sin(self.gamma)
+            ByPer = np.tan(self.alpha) * BxPer
+            BzPer = BxPer * (1/np.cos(self.alpha)) * (1/np.tan(self.gamma))
+        else:
+            BxPer = 0
+            ByPer = 0
+            BzPer = 0
+            c = 0
+    
 
-        #the good ones
-        #Ix = ((np.cos(self.alpha + np.pi/2) * np.sin(self.omega*tp)) + (np.cos(self.alpha+ np.pi) * np.cos(self.gamma)  * np.cos(self.omega*tp)))
-        #Iy =  ((np.sin(self.alpha+ np.pi/2) * np.sin(self.omega*tp)) + (np.sin(self.alpha+ np.pi) * np.cos(self.gamma) *  np.cos(self.omega*tp))) 
-        #Iz = np.sin(self.gamma) * np.cos(self.omega*tp)
-        print(np.linalg.norm([Ix,Iy,Iz]))
-        
-        #achiral swimming equations from MicrioBioRobotics textbook pg 125
-        #Ix = - np.cos(self.alpha) + np.sin(self.alpha) * np.cos(self.omega*tp)
-        #Iy =  np.sin(self.alpha) + np.cos(self.alpha) * np.cos(self.omega*tp)
-        #Iz =  np.sin(self.omega*tp) 
-       
-        #feed into helmhotz simulator
+        Brollx = (Brollx + BxPer) / (1+c)
+        Brolly = (Brolly + ByPer) / (1+c)
+        Brollz = (Brollz + BzPer) / (1+c)
+
+        #super impose orient field on top of already agumented roll field that includes a perp compnent from 
+        #allows for alittle more control of vector field
+        Ix = self.Bx + Brollx
+        Iy = self.By + Brolly
+        Iz = self.Bz + Brollz
+
+        Ix = Ix / np.sqrt(Ix**2 + Iy**2 + Iz**2)
+        Iy = Iy / np.sqrt(Ix**2 + Iy**2 + Iz**2)
+        Iz = Iz / np.sqrt(Ix**2 + Iy**2 + Iz**2)
         
         BX = self.zb_field(self.x, Ix)  
         BY = self.zb_field(self.y, Iy)
@@ -172,16 +186,20 @@ class Helmholtz_Simulator:
         self.ax2.plot(t_list, Ix_List, label = "Ix (A)", color = "red")
         self.ax2.plot(t_list, Iy_List, label = "Iy (A)", color = "yellow")
         self.ax2.plot(t_list, Iz_List, label = "Iz (A)", color = "blue")
+        self.ax2.set_ylim([-1,1])
         self.ax2.legend(loc='upper right')
         self.ax2.set_title("signals") 
 
         #plot IX,IY, IZ in 3D
         self.ax1.clear()    
         self.show_axis_rotation(self.ax1, 1)
+        self.ax1.set_xlim([-1,1])
+        self.ax1.set_ylim([-1,1])
         self.ax1.plot(Ix_List, Iy_List, Iz_List, label = "Iz (A)", color = "blue")
         self.ax1.set_xlabel('Ix (A)') 
         self.ax1.set_ylabel('Iy (A)') 
         self.ax1.set_zlabel('Iz (A)') 
+      
         self.ax1.set_title("if line 108 uncommented\nalpha = {}".format(i)) 
 
      
@@ -204,15 +222,3 @@ class Helmholtz_Simulator:
 
 
 
-if __name__ == "__main__":
-    
-    alpha = 0
-    gamma = 90
-    freq = .5
-    
-    
-    memory = 15  # for sinuoisd, so its only plot the last 15 points in the list
-
-
-    sim = Helmholtz_Simulator(alpha, gamma, freq, memory)
-    sim.run()
