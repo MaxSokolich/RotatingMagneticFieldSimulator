@@ -21,7 +21,7 @@ class Helmholtz_Simulator:
         self.start = time.time()
 
 
-        self.diagram = plt.imread("src/Diagram.png")
+     
         #define lists to store sineusoid in
         self.t_list = []
         self.Ix_List = []
@@ -40,7 +40,7 @@ class Helmholtz_Simulator:
         self.psi = psi * (np.pi/180)
         self.omega = 2*np.pi* float(freq)  #angular velocity of rotating field defined from input from Rotating Frequency Entry
         
-        self.period = (2*np.pi)/self.omega  #time it takes for one cycle
+ 
 
 
         # Create figure for plotting
@@ -109,57 +109,78 @@ class Helmholtz_Simulator:
     # This function is called periodically from FuncAnimation
 
     def animate(self,i):
-        
+        tp = time.time() - self.start
         #self.alpha = i * np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
         #self.psi = (i %90) *np.pi/180
         #self.ax.view_init(elev=90, azim=45)
         #self.ax1.view_init(elev=90, azim=45)
+        if self.omega != 0:
+            
+            Brollx =  ((-np.sin(self.alpha) * np.sin(self.omega*tp)) + (-np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp))) 
+            Brolly =  ((np.cos(self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp))) 
+            Brollz =  np.sin(self.gamma) * np.cos(self.omega*tp)
 
-        tp = time.time() - self.start
-        Brollx =  ((-np.sin(self.alpha) * np.sin(self.omega*tp)) + (-np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp))) 
-        Brolly =  ((np.cos(self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp))) 
-        Brollz =  np.sin(self.gamma) * np.cos(self.omega*tp)
+            
+            if self.psi < np.pi/2:
+                #if self.alpha % (np.pi/2) == 0:
+                #    self.alpha = self.alpha + 0.000001#for some strange reason the eqns give wrong answers when alpha is pi/2
+                #if self.gamma == 0 or self.gamma % (np.pi/2) == 0:
+                #    self.gamma = self.gamma + 0.000001
+                c = 1/np.tan(self.psi)
+                BxPer = c* np.cos(self.alpha) * np.sin(self.gamma)
+                ByPer = np.tan(self.alpha) * BxPer
+                #print(ByPer)
+                BzPer = BxPer * (1/np.cos(self.alpha)) * (1/np.tan(self.gamma))
+            else:
+                BxPer = 0
+                ByPer = 0
+                BzPer = 0
+                c = 0
 
-        if self.psi < np.pi/2:
-            #if self.alpha % (np.pi/2) == 0:
-            #    self.alpha = self.alpha + 0.000001#for some strange reason the eqns give wrong answers when alpha is pi/2
-            #if self.gamma == 0 or self.gamma % (np.pi/2) == 0:
-            #    self.gamma = self.gamma + 0.000001
-            c = 1/np.tan(self.psi)
-            BxPer = c* np.cos(self.alpha) * np.sin(self.gamma)
-            ByPer = np.tan(self.alpha) * BxPer
-            BzPer = BxPer * (1/np.cos(self.alpha)) * (1/np.tan(self.gamma))
+            Brollx = (Brollx + BxPer) / (1+c)
+            Brolly = (Brolly + ByPer) / (1+c)
+            Brollz = (Brollz + BzPer) / (1+c)
         else:
-            BxPer = 0
-            ByPer = 0
-            BzPer = 0
-            c = 0
-    
+            Brollx = 0
+            Brolly = 0
+            Brollz = 0
 
-        Brollx = (Brollx + BxPer) / (1+c)
-        Brolly = (Brolly + ByPer) / (1+c)
-        Brollz = (Brollz + BzPer) / (1+c)
 
         #super impose orient field on top of already agumented roll field that includes a perp compnent from 
         #allows for alittle more control of vector field
-        Ix = self.Bx + Brollx
-        Iy = self.By + Brolly
-        Iz = self.Bz + Brollz
-
-        Ix = Ix / np.sqrt(Ix**2 + Iy**2 + Iz**2)
-        Iy = Iy / np.sqrt(Ix**2 + Iy**2 + Iz**2)
-        Iz = Iz / np.sqrt(Ix**2 + Iy**2 + Iz**2)
+        #cc = np.sqrt(Brollx*Brollx + Brolly*Brolly + Brollz*Brollz )
+        #ccc = np.sqrt(self.Bx*self.Bx + self.By*self.By + self.Bz*self.Bz )
+        #print(ccc)
+        #print(cc)
+        Ix = round((self.Bx + Brollx),3) ##/ (ccc+cc)
+        Iy = round((self.By + Brolly),3) #/ (ccc+cc)
+        Iz = round((self.Bz + Brollz),3) #/ (ccc+cc)
         
-        BX = self.zb_field(self.x, Ix)  
-        BY = self.zb_field(self.y, Iy)
-        BZ = self.zb_field(self.z, Iz)
+        uniform_mag = round(np.sqrt(self.Bx**2 + self.By**2 + self.Bz**2),3)
+        rolling_mag = round(np.sqrt(Brollx**2 + Brolly**2 + Brollz**2),3)
+
+        mag = max(uniform_mag, rolling_mag)
+        denom = round(np.sqrt(Ix**2 + Iy**2 + Iz**2),3)
+
+        print(mag, denom)
+        Ix_final = mag*(Ix / denom)
+        Iy_final = mag*(Iy / denom)
+        Iz_final = mag*(Iz / denom)
+        m = round(np.sqrt(Ix_final**2 + Iy_final**2 + Iz_final**2),3)
+        print("final normalize field", m)
+       
+        BX = self.zb_field(self.x, Ix_final)  
+        BY = self.zb_field(self.y, Iy_final)
+        BZ = self.zb_field(self.z, Iz_final)
+
+        print(Ix_final,Iy_final,Iz_final)
         
         
         #update Bfield lists for sinusoids
         self.t_list.append(tp)
-        self.Ix_List.append(Ix)
-        self.Iy_List.append(Iy)
-        self.Iz_List.append(Iz)
+        self.Ix_List.append(Ix_final)
+        self.Iy_List.append(Iy_final)
+        self.Iz_List.append(Iz_final)
 
         # Limit x and y lists to 20 items
         t_list = self.t_list[-self.memory:]
@@ -186,7 +207,7 @@ class Helmholtz_Simulator:
         self.ax2.plot(t_list, Ix_List, label = "Ix (A)", color = "red")
         self.ax2.plot(t_list, Iy_List, label = "Iy (A)", color = "yellow")
         self.ax2.plot(t_list, Iz_List, label = "Iz (A)", color = "blue")
-        self.ax2.set_ylim([-1,1])
+        self.ax2.set_ylim([-2,2])
         self.ax2.legend(loc='upper right')
         self.ax2.set_title("signals") 
 
@@ -215,10 +236,25 @@ class Helmholtz_Simulator:
     def run(self):
         # Set up plot to call animate() function periodically
         anim = animation.FuncAnimation(self.fig, self.animate,frames = range(360), interval=10, blit = False)
-        self.ax3.imshow(self.diagram)
+
         plt.show()
 
 
 
 
 
+if __name__ == "__main__":
+    Bx = 0   #constant Bz field
+    By = 1   #constant By field
+    Bz = 0   #constant Bz field
+    alpha = 90  # polar angle measure from the positive z axis
+    gamma = 90  # azimuthal angle measure from the positive z axis
+    psi = 90   # cone angle measure from the axis of rotation
+    freq = .5
+
+    
+
+    memory = 15  # for sinuoisd, so its only plot the last 15 points in the list
+    
+    sim = Helmholtz_Simulator(alpha, gamma,psi, freq, memory, Bx, By, Bz)
+    sim.run()

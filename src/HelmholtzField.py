@@ -9,7 +9,7 @@ milli = 10**(-6)
 Ix = 1 #current
 Iy = .4
 Iz = .2
-mu = 4*np.pi * (10**(-7)) / milli
+mu = 4*np.pi * (10**(-7)) #/ milli
 def xb_field(x):
     a = 54 #radius
     c = (84/2) #distance between /2
@@ -19,6 +19,24 @@ def xb_field(x):
     term2 = 1/ (a**2 + (c+x)**2)**(3/2)
     B = ((mu * N * Ix * a**2)/2 ) * (term1 + term2)
     return B
+
+def noah_field(x):
+    a = .060  #radius
+    c = (.155/2) #distance between /2
+    N = 1200 #number of turns
+    #the field at x away from the coil
+    term1 = 1/ ((a**2 + (c-x)**2)**(3/2))
+    term2 = 1/ ((a**2 + (c+x)**2)**(3/2))
+    I = 1 #current
+    B = ((mu * N * I * a**2)/2 ) * (term1 + term2)
+    return B
+
+print(noah_field(0)*1000)
+x = np.linspace(-.08,.08, 20)
+field = noah_field(x)
+plt.figure()
+plt.plot(x, noah_field(x))
+plt.show()
 
 def yb_field(y):
     a = 35 #radius
@@ -45,7 +63,7 @@ print("field = {}mT".format(xb_field(35)))
 
 
 
-#form grid
+"""#form grid
 grid_res = 25
 min_x,min_y,min_z = -100, -100,-100 #mm
 max_x, max_y, max_z = 100, 100,100
@@ -72,4 +90,4 @@ ax.set_ylabel('Y')
 ax.set_zlabel('Z') 
 ax.set_title('3D Streamplot') 
 
-plt.show()
+plt.show()"""
