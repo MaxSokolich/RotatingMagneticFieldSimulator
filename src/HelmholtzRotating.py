@@ -64,7 +64,7 @@ class Helmholtz_Simulator:
         self.mu = 4*np.pi * (10**(-7)) 
 
         #define 3D grid
-        grid_res = 8 *self.milli
+        grid_res = 10 *self.milli
         min_x,min_y,min_z = -25*self.milli, -25*self.milli,-25*self.milli #mm
         max_x, max_y, max_z = 25*self.milli, 25*self.milli,25*self.milli
 
@@ -110,13 +110,13 @@ class Helmholtz_Simulator:
 
     def animate(self,i):
         tp = time.time() - self.start
-        #self.alpha = i * np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
+        self.alpha = i * np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
         #self.psi = (i %90) *np.pi/180
         #self.ax.view_init(elev=90, azim=45)
         #self.ax1.view_init(elev=90, azim=45)
         if self.omega != 0:
             
-            Brollx =  ((-np.sin(self.alpha) * np.sin(self.omega*tp)) + (-np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp))) 
+            Brollx =  ((-np.sin(self.alpha) * np.sin(self.omega*tp)) - (np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp))) 
             Brolly =  ((np.cos(self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp))) 
             Brollz =  np.sin(self.gamma) * np.cos(self.omega*tp)
 
@@ -191,8 +191,8 @@ class Helmholtz_Simulator:
         
         # Draw Bx,By,Bz field
         self.ax.clear()
-       
-        self.show_axis_rotation(self.ax, 0.0001)
+    
+        self.show_axis_rotation(self.ax, .00005)
         speed = np.sqrt((BX)**2+(BY)**2+(BZ)**2).flatten()
         self.ax.quiver(self.x,self.y,self.z,BX,BY,BZ, color='black',length=0.000001) #norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))#,density = 2)#norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))
         self.ax.scatter(self.x,self.y,self.z, s = 1, c= "b")
@@ -235,7 +235,7 @@ class Helmholtz_Simulator:
 
     def run(self):
         # Set up plot to call animate() function periodically
-        anim = animation.FuncAnimation(self.fig, self.animate,frames = range(360), interval=10, blit = False)
+        anim = animation.FuncAnimation(self.fig, self.animate,frames = range(360), interval=1, blit = False)
 
         plt.show()
 
@@ -245,14 +245,13 @@ class Helmholtz_Simulator:
 
 if __name__ == "__main__":
     Bx = 0   #constant Bz field
-    By = 1   #constant By field
+    By = 0   #constant By field
     Bz = 0   #constant Bz field
-    alpha = 90  # polar angle measure from the positive z axis
+    alpha = 45  # polar angle measure from the positive z axis
     gamma = 90  # azimuthal angle measure from the positive z axis
     psi = 90   # cone angle measure from the axis of rotation
-    freq = .5
+    freq = 1
 
-    
 
     memory = 15  # for sinuoisd, so its only plot the last 15 points in the list
     
