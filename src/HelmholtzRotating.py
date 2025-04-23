@@ -38,7 +38,7 @@ class Helmholtz_Simulator:
         self.alpha = alpha* (np.pi/180)   # yaw angle converted to radians
         self.gamma = gamma * (np.pi/180) # pitch angle converted to radians
         self.psi = psi * (np.pi/180)
-        self.omega = 2*np.pi* float(freq)  #angular velocity of rotating field defined from input from Rotating Frequency Entry
+        self.omega = -2*np.pi* float(freq)  #angular velocity of rotating field defined from input from Rotating Frequency Entry
         
  
 
@@ -64,7 +64,7 @@ class Helmholtz_Simulator:
         self.mu = 4*np.pi * (10**(-7)) 
 
         #define 3D grid
-        grid_res = 8 *self.milli
+        grid_res = 10 *self.milli
         min_x,min_y,min_z = -25*self.milli, -25*self.milli,-25*self.milli #mm
         max_x, max_y, max_z = 25*self.milli, 25*self.milli,25*self.milli
 
@@ -121,7 +121,7 @@ class Helmholtz_Simulator:
             Brollz =  np.sin(self.gamma) * np.cos(-self.omega*tp)
 
             
-
+       
             
             if self.psi < np.pi/2:
                 #if self.alpha % (np.pi/2) == 0:
@@ -193,8 +193,8 @@ class Helmholtz_Simulator:
         
         # Draw Bx,By,Bz field
         self.ax.clear()
-       
-        self.show_axis_rotation(self.ax, 0.0001)
+    
+        self.show_axis_rotation(self.ax, .00005)
         speed = np.sqrt((BX)**2+(BY)**2+(BZ)**2).flatten()
         self.ax.quiver(self.x,self.y,self.z,BX,BY,BZ, color='black',length=0.000001) #norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))#,density = 2)#norm = colors.LogNorm(vmin=speed.min(), vmax=speed.max() ))
         self.ax.scatter(self.x,self.y,self.z, s = 1, c= "b")
@@ -237,7 +237,7 @@ class Helmholtz_Simulator:
 
     def run(self):
         # Set up plot to call animate() function periodically
-        anim = animation.FuncAnimation(self.fig, self.animate,frames = range(360), interval=10, blit = False)
+        anim = animation.FuncAnimation(self.fig, self.animate,frames = range(360), interval=1, blit = False)
 
         plt.show()
 
@@ -254,7 +254,6 @@ if __name__ == "__main__":
     psi = 90   # cone angle measure from the axis of rotation
     freq = 1
 
-    
 
     memory = 15  # for sinuoisd, so its only plot the last 15 points in the list
     

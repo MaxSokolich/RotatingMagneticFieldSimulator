@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 # https://www.accelinstruments.com/Magnetic/Magnetic-field-calculator.html
 milli = (10 **(-3))
-dwire_bare = 1.3 *milli
+dwire_bare = .5105 *milli
 dwire = dwire_bare+.00005   #diameter of wire in meters
 
-t = 50*milli #thickness of coil in meters
+t = 14*milli #thickness of coil in meters
 #h = 10*milli #height of coil in meters
-Nt = 828
-inner_coil_diameter = 44 * milli #inner diameter of coil in meters
+Nt = 480
+inner_coil_diameter = 90 * milli #inner diameter of coil in meters
 I = 2
 
 

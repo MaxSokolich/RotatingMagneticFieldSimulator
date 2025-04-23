@@ -2,12 +2,12 @@ import numpy as np
 # https://www.accelinstruments.com/Magnetic/Magnetic-field-calculator.html
 milli = (10 **(-3))
 
-t = 70*milli #thickness of coil in meters
-h = 24*milli #height of coil in meters
-inner_coil_diameter = 44 *milli #inner diameter of coil in meters
-outer_coildiameter = 92*milli#inner_coil_diameter +h*2
+t = 19*milli #thickness of coil in meters. in other words how long is the iron or air core. from flat face to flat face
+h = 7*milli #height of coil in meters
+inner_coil_diameter = 5 *milli #inner diameter of coil in meters. this is the diameter of the iron core rod, or air core
+outer_coildiameter = inner_coil_diameter +h*2
 
-dwire_bare = 1.3 *milli
+dwire_bare = .45 *milli
 dwire = dwire_bare+.00005 
 area = np.pi * (dwire_bare/2)**2
 ro = 1.68 * (10**(-8)) #resistivity of copper
