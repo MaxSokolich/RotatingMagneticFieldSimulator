@@ -38,7 +38,7 @@ class Helmholtz_Simulator:
         self.alpha = alpha* (np.pi/180)   # yaw angle converted to radians
         self.gamma = gamma * (np.pi/180) # pitch angle converted to radians
         self.psi = psi * (np.pi/180)
-        self.omega = 2*np.pi* float(freq)  #angular velocity of rotating field defined from input from Rotating Frequency Entry
+        self.omega = -2*np.pi* float(freq)  #angular velocity of rotating field defined from input from Rotating Frequency Entry
         
  
 
@@ -110,13 +110,13 @@ class Helmholtz_Simulator:
 
     def animate(self,i):
         tp = time.time() - self.start
-        #self.alpha = i * np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
+        self.alpha = i * np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
         #self.psi = (i %90) *np.pi/180
         #self.ax.view_init(elev=90, azim=45)
         #self.ax1.view_init(elev=90, azim=45)
         if self.omega != 0:
             
-            Brollx =  ((np.sin(self.alpha) * np.sin(self.omega*tp)) + (np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp))) 
+            Brollx =  -((np.sin(self.alpha) * np.sin(self.omega*tp)) + (np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp))) 
             Brolly =  ((np.cos(self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp))) 
             Brollz =  np.sin(self.gamma) * np.cos(self.omega*tp)
 
@@ -247,8 +247,8 @@ if __name__ == "__main__":
     Bx = 0   #constant Bz field
     By = 0   #constant By field
     Bz = 0   #constant Bz field
-    alpha = 0  # polar angle measure from the positive z axis
-    gamma = 45  # azimuthal angle measure from the positive z axis
+    alpha = 90  # polar angle measure from the positive z axis
+    gamma = 90  # azimuthal angle measure from the positive z axis
     psi = 90   # cone angle measure from the axis of rotation
     freq = 1
 
