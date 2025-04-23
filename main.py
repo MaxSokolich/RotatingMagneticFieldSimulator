@@ -7,7 +7,7 @@ if __name__ == "__main__":
     alpha = 90  # polar angle measure from the positive z axis
     gamma = 90  # azimuthal angle measure from the positive z axis
     psi = 90   # cone angle measure from the axis of rotation
-    freq = 0
+    freq = 1
 
     
 
