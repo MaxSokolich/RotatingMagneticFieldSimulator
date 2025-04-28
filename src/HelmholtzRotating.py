@@ -119,14 +119,16 @@ class Helmholtz_Simulator:
             #Brollx =  -((np.sin(self.alpha) * np.sin(-self.omega*tp)) + (np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(-self.omega*tp))) 
             #Brolly =  ((np.cos(self.alpha) * np.sin(-self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(-self.omega*tp))) 
             #Brollz =  np.sin(self.gamma) * np.cos(-self.omega*tp)
-            Br = 1
-            Bs = 0
-            self.alpha = 8*np.pi/16
+  
+     
             
-            Brollx =  -Bs*np.cos(self.alpha)  + Br*(np.sin(self.alpha)  * np.cos(self.omega*tp))
-            Brolly =  Bs*np.sin(self.alpha)  + Br*(np.cos(self.alpha)  *  np.cos(self.omega*tp))
-            Brollz =  Br*np.sin(self.omega*tp)
+           
+            Brollx =  -((np.sin(self.alpha) * np.sin(-self.omega*tp)) + (np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(-self.omega*tp))) 
+            Brolly =  ((np.cos(self.alpha) * np.sin(-self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(-self.omega*tp))) 
+            Brollz =  np.sin(self.gamma) * np.cos(-self.omega*tp)
 
+            
+       
             
             if self.psi < np.pi/2:
                 #if self.alpha % (np.pi/2) == 0:
