@@ -38,7 +38,7 @@ class Helmholtz_Simulator:
         self.alpha = alpha* (np.pi/180)   # yaw angle converted to radians
         self.gamma = gamma * (np.pi/180) # pitch angle converted to radians
         self.psi = psi * (np.pi/180)
-        self.omega = -2*np.pi* float(freq)  #angular velocity of rotating field defined from input from Rotating Frequency Entry
+        self.omega = 2*np.pi* float(freq)  #angular velocity of rotating field defined from input from Rotating Frequency Entry
         
  
 
@@ -111,14 +111,21 @@ class Helmholtz_Simulator:
     def animate(self,i):
         tp = time.time() - self.start
         self.alpha = i * np.pi/180    #<<--- uncomment this line to sweep alpha from 0 -360
-        #self.psi = (i %90) *np.pi/180
+        #self.psi = (i % 90) *np.pi/180
         #self.ax.view_init(elev=90, azim=45)
         #self.ax1.view_init(elev=90, azim=45)
         if self.omega != 0:
             
-            Brollx =  -((np.sin(self.alpha) * np.sin(self.omega*tp)) + (np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(self.omega*tp))) 
-            Brolly =  ((np.cos(self.alpha) * np.sin(self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(self.omega*tp))) 
-            Brollz =  np.sin(self.gamma) * np.cos(self.omega*tp)
+            #Brollx =  -((np.sin(self.alpha) * np.sin(-self.omega*tp)) + (np.cos(self.alpha) * np.cos(self.gamma)  * np.cos(-self.omega*tp))) 
+            #Brolly =  ((np.cos(self.alpha) * np.sin(-self.omega*tp)) + (-np.sin(self.alpha) * np.cos(self.gamma) *  np.cos(-self.omega*tp))) 
+            #Brollz =  np.sin(self.gamma) * np.cos(-self.omega*tp)
+            Br = 1
+            Bs = 0
+            self.alpha = 8*np.pi/16
+            
+            Brollx =  -Bs*np.cos(self.alpha)  + Br*(np.sin(self.alpha)  * np.cos(self.omega*tp))
+            Brolly =  Bs*np.sin(self.alpha)  + Br*(np.cos(self.alpha)  *  np.cos(self.omega*tp))
+            Brollz =  Br*np.sin(self.omega*tp)
 
             
             if self.psi < np.pi/2:
@@ -216,6 +223,7 @@ class Helmholtz_Simulator:
         self.show_axis_rotation(self.ax1, 1)
         self.ax1.set_xlim([-1,1])
         self.ax1.set_ylim([-1,1])
+        self.ax1.set_zlim([-1,1])
         self.ax1.plot(Ix_List, Iy_List, Iz_List, label = "Iz (A)", color = "blue")
         self.ax1.set_xlabel('Ix (A)') 
         self.ax1.set_ylabel('Iy (A)') 
